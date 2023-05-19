@@ -22,11 +22,11 @@ public class WalletController : MonoBehaviour
     private string currentChain = "ethereum"; // bitcoin
     private bool isMainNet = false;
 
-    [SerializeField] private List<GameObject> listPhase;
+    [SerializeField] private List<GameObject> listPhrase;
     Web3 web3;
     Mnemonic mnemo;
     string wallet_address = "";
-    string wallet_phases = "";
+    string wallet_phrases = "";
     string wallet_password = "";
     string wallet_privateKey = "";
 
@@ -57,7 +57,7 @@ public class WalletController : MonoBehaviour
         ResultPrivateKey.text = account.PrivateKey;
         Debug.Log(account.Address);
     }
-    private string CreateTwelvePhase()
+    private string CreateTwelvePhrase()
     {
         Mnemonic mnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
         return mnemo.ToString();
@@ -69,14 +69,14 @@ public class WalletController : MonoBehaviour
         //loginObject.SetActive(true);
 
         mnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
-        wallet_phases = mnemo.ToString();
+        wallet_phrases = mnemo.ToString();
 
-        string[] splitArrayPhases = wallet_phases.Split(char.Parse(" "));
+        string[] splitArrayPhrases = wallet_phrases.Split(char.Parse(" "));
 
-        for (int i = 0; i < listPhase.Count; i++)
+        for (int i = 0; i < listPhrase.Count; i++)
         {
-            listPhase[i].GetComponent<TMPro.TMP_InputField>().interactable = false;
-            listPhase[i].GetComponent<TMPro.TMP_InputField>().text = splitArrayPhases[i];
+            listPhrase[i].GetComponent<TMPro.TMP_InputField>().interactable = false;
+            listPhrase[i].GetComponent<TMPro.TMP_InputField>().text = splitArrayPhrases[i];
         }
     }
     private void LoginByPrivateKey(string privateKey)
