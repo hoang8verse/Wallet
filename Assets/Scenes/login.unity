@@ -779,7 +779,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &103883046
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2142,8 +2142,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2029865178}
   - {fileID: 1019301197}
+  - {fileID: 2029865178}
   m_Father: {fileID: 2041283958}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3020,7 +3020,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -784}
-  m_SizeDelta: {x: 343, y: 56}
+  m_SizeDelta: {x: 375, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &419749053
 MonoBehaviour:
@@ -3065,7 +3065,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 419749054}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2041283959}
+        m_TargetAssemblyTypeName: SeedPhraseScreen, Assembly-CSharp
+        m_MethodName: GoToVerifyScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &419749054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5974,13 +5986,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 779884103}
+  - component: {fileID: 779884104}
   m_Layer: 5
   m_Name: Splash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &779884103
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6003,6 +6016,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &779884104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 779884102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4d2ca9d7420b0468909540e8a95a4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextScreen: {fileID: 977466598}
 --- !u!1 &782134240
 GameObject:
   m_ObjectHideFlags: 0
@@ -6499,7 +6525,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 821074640}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2041283959}
+        m_TargetAssemblyTypeName: SeedPhraseScreen, Assembly-CSharp
+        m_MethodName: CopyToClipboard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &821074640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6877,7 +6915,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 862799585}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2041283959}
+        m_TargetAssemblyTypeName: SeedPhraseScreen, Assembly-CSharp
+        m_MethodName: UnderstandCondition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &862799585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7566,6 +7616,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 977466599}
+  - component: {fileID: 977466600}
   m_Layer: 5
   m_Name: CreateScreen
   m_TagString: Untagged
@@ -7597,6 +7648,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &977466600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 977466598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b773ae1ff2fa4f4584bfebe54695871, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  createScreen: {fileID: 2041283957}
+  importScreen: {fileID: 1995979041}
 --- !u!1 &986037172
 GameObject:
   m_ObjectHideFlags: 0
@@ -9143,7 +9208,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -784}
-  m_SizeDelta: {x: 343, y: 56}
+  m_SizeDelta: {x: 375, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1109770881
 MonoBehaviour:
@@ -9431,7 +9496,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1161979900}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 977466600}
+        m_TargetAssemblyTypeName: InitWalletScreen, Assembly-CSharp
+        m_MethodName: GoToCreateScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1161979900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9944,7 +10021,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1204208363}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 977466600}
+        m_TargetAssemblyTypeName: InitWalletScreen, Assembly-CSharp
+        m_MethodName: GoToImportScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1204208363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13581,7 +13670,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fde3e9a8d1c1ab4fa7bbd9d695c61fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  listPhrase: []
+  wallet_address: 
+  wallet_phrases: 
+  wallet_password: 
+  wallet_privateKey: 
   ResultAccountAddress: {fileID: 0}
   InputWords: {fileID: 0}
   ResultPrivateKey: {fileID: 0}
@@ -14913,7 +15005,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1796443614
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17965,7 +18057,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2029865180}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2041283959}
+        m_TargetAssemblyTypeName: SeedPhraseScreen, Assembly-CSharp
+        m_MethodName: GoToBackScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2029865180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18090,6 +18194,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2041283958}
+  - component: {fileID: 2041283959}
   m_Layer: 5
   m_Name: SeedGeneration
   m_TagString: Untagged
@@ -18126,6 +18231,41 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2041283959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041283957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6a38348b888e994998470a311025aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backScreen: {fileID: 977466598}
+  verifySeedPhraseScreen: {fileID: 103883045}
+  listPhrase:
+  - {fileID: 1552815871}
+  - {fileID: 1405544624}
+  - {fileID: 974595678}
+  - {fileID: 678537400}
+  - {fileID: 740157187}
+  - {fileID: 1777492413}
+  - {fileID: 1282881392}
+  - {fileID: 1276013952}
+  - {fileID: 356451392}
+  - {fileID: 1808074806}
+  - {fileID: 1551479288}
+  - {fileID: 1408980246}
+  btnCondition: {fileID: 862799582}
+  conditionImages:
+  - {fileID: 21300000, guid: 703ebcce694588244927513f6bc0d32d, type: 3}
+  - {fileID: 21300000, guid: 570bc53a3a0310640b235fbd624f1398, type: 3}
+  btnContinue: {fileID: 419749051}
+  continueImages:
+  - {fileID: 21300000, guid: 51b5e510dca701845aa75c67fe7ddc16, type: 3}
+  - {fileID: 21300000, guid: e4dc1d574582ba74e87aa6f236575740, type: 3}
 --- !u!1 &2050194448
 GameObject:
   m_ObjectHideFlags: 0
@@ -18238,7 +18378,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1024, y: 50}
+  m_SizeDelta: {x: 900, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2071784288
 MonoBehaviour:

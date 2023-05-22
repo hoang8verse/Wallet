@@ -19,16 +19,16 @@ using Nethereum.HdWallet;
 
 public class WalletController : MonoBehaviour
 {
+    public static WalletController instance;
     private string currentChain = "ethereum"; // bitcoin
     private bool isMainNet = false;
 
-    [SerializeField] private List<GameObject> listPhrase;
     Web3 web3;
     Mnemonic mnemo;
-    string wallet_address = "";
-    string wallet_phrases = "";
-    string wallet_password = "";
-    string wallet_privateKey = "";
+    public string wallet_address = "";
+    public string wallet_phrases = "";
+    public string wallet_password = "";
+    public string wallet_privateKey = "";
 
     public const string Words =
        "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
@@ -41,7 +41,13 @@ public class WalletController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        InputWords.text = Words;
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+        DontDestroyOnLoad(gameObject);
+
+        //InputWords.text = Words;
     }
 
     public void GetHdWalletAccoutnsRequest()
@@ -65,19 +71,8 @@ public class WalletController : MonoBehaviour
 
     public void OnCreateWallet()
     {
-        //welcomeObject.SetActive(false);
-        //loginObject.SetActive(true);
-
         mnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
         wallet_phrases = mnemo.ToString();
-
-        string[] splitArrayPhrases = wallet_phrases.Split(char.Parse(" "));
-
-        for (int i = 0; i < listPhrase.Count; i++)
-        {
-            listPhrase[i].GetComponent<TMPro.TMP_InputField>().interactable = false;
-            listPhrase[i].GetComponent<TMPro.TMP_InputField>().text = splitArrayPhrases[i];
-        }
     }
     private void LoginByPrivateKey(string privateKey)
     {
