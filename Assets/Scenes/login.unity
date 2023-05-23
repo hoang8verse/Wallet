@@ -773,13 +773,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 103883046}
+  - component: {fileID: 103883047}
   m_Layer: 5
   m_Name: SeedPhraseVerifiy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &103883046
 RectTransform:
   m_ObjectHideFlags: 0
@@ -807,6 +808,35 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &103883047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103883045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93b8b42f7755cfa44938f91b63c45ad1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backScreen: {fileID: 2041283957}
+  exploreWalletScreen: {fileID: 1796443613}
+  positionPage:
+  - {fileID: 1901460080}
+  - {fileID: 32729428}
+  - {fileID: 628718824}
+  - {fileID: 1417478418}
+  seePhraseByPage:
+  - {fileID: 1758171837}
+  - {fileID: 1055344074}
+  - {fileID: 465620719}
+  - {fileID: 652991652}
+  messageWarning: {fileID: 343302972}
+  btnContinue: {fileID: 1109770879}
+  continueImages:
+  - {fileID: 21300000, guid: 51b5e510dca701845aa75c67fe7ddc16, type: 3}
+  - {fileID: 21300000, guid: e4dc1d574582ba74e87aa6f236575740, type: 3}
 --- !u!1 &110705782
 GameObject:
   m_ObjectHideFlags: 0
@@ -3843,7 +3873,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103883047}
+        m_TargetAssemblyTypeName: VerifySeedPhraseScreen, Assembly-CSharp
+        m_MethodName: OnFieldSelectedPos_3
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 854695623}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -5324,7 +5366,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103883047}
+        m_TargetAssemblyTypeName: VerifySeedPhraseScreen, Assembly-CSharp
+        m_MethodName: OnFieldSelectedPos_4
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 587869652}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -8591,7 +8645,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103883047}
+        m_TargetAssemblyTypeName: VerifySeedPhraseScreen, Assembly-CSharp
+        m_MethodName: OnFieldSelectedPos_2
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1454186712}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -9253,7 +9319,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1109770882}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103883047}
+        m_TargetAssemblyTypeName: VerifySeedPhraseScreen, Assembly-CSharp
+        m_MethodName: GoToNextScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1109770882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9374,7 +9452,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1121972389}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103883047}
+        m_TargetAssemblyTypeName: VerifySeedPhraseScreen, Assembly-CSharp
+        m_MethodName: GoToBackScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1121972389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14760,7 +14850,19 @@ MonoBehaviour:
       m_Calls: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 103883047}
+        m_TargetAssemblyTypeName: VerifySeedPhraseScreen, Assembly-CSharp
+        m_MethodName: OnFieldSelectedPos_1
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 2021942123}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTouchScreenKeyboardStatusChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -18258,6 +18360,7 @@ MonoBehaviour:
   - {fileID: 1808074806}
   - {fileID: 1551479288}
   - {fileID: 1408980246}
+  messageCopy: {fileID: 1094237958}
   btnCondition: {fileID: 862799582}
   conditionImages:
   - {fileID: 21300000, guid: 703ebcce694588244927513f6bc0d32d, type: 3}

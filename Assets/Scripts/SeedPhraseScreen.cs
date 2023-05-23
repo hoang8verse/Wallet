@@ -12,6 +12,7 @@ public class SeedPhraseScreen : MonoBehaviour
     [SerializeField] private GameObject backScreen;
     [SerializeField] private GameObject verifySeedPhraseScreen;
     [SerializeField] private List<TMPro.TextMeshProUGUI> listPhrase;
+    [SerializeField] private GameObject messageCopy;
 
     [SerializeField] private GameObject btnCondition;
     [SerializeField] private List<Sprite> conditionImages;
@@ -37,6 +38,13 @@ public class SeedPhraseScreen : MonoBehaviour
     public void CopyToClipboard()
     {
         GUIUtility.systemCopyBuffer = WalletController.instance.wallet_phrases;
+        StartCoroutine(ShowMessageCopy());
+    }
+    IEnumerator ShowMessageCopy()
+    {
+        messageCopy.SetActive(true);
+        yield return new WaitForSeconds(1.5f);
+        messageCopy.SetActive(false);
     }
     public void UnderstandCondition()
     {
