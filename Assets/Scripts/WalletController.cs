@@ -25,6 +25,7 @@ public class WalletController : MonoBehaviour
 
     Web3 web3;
     Mnemonic mnemo;
+    public string wallet_name = "";
     public string wallet_address = "";
     public string wallet_phrases = "";
     public string wallet_password = "";
@@ -46,8 +47,6 @@ public class WalletController : MonoBehaviour
         else if (instance != this)
             Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
-
-        //InputWords.text = Words;
     }
 
     public void GetHdWalletAccoutnsRequest()

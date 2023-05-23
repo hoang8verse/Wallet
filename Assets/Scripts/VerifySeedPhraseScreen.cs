@@ -23,13 +23,12 @@ public class VerifySeedPhraseScreen : MonoBehaviour
     int currentPage = 0;
     string[] arrayPhrases;
     string[] arrayPhrasesVerify;
-    bool m_isCheckedCondition = false;
     // Use this for initialization
     void Start()
     {
-        FillSeedPhrase();
+        InitScreen();
     }
-    public void FillSeedPhrase()
+    public void InitScreen()
     {
         arrayPhrases = WalletController.instance.wallet_phrases.Split(char.Parse(" "));
         arrayPhrasesVerify = new string[arrayPhrases.Length];
@@ -90,14 +89,11 @@ public class VerifySeedPhraseScreen : MonoBehaviour
     }
     bool CheckVerifySeedPhrase()
     {
-        Debug.Log(" arrayPhrases  =  " + arrayPhrases.ToString());
-        Debug.Log(" arrayPhrasesVerify  =  " + arrayPhrasesVerify.ToString());
+        //Debug.Log(" arrayPhrases  =  " + arrayPhrases.ToString());
+        //Debug.Log(" arrayPhrasesVerify  =  " + arrayPhrasesVerify.ToString());
         int count = 0;
         for (int i = 0; i < seePhraseByPage.Count; i++)
-        {
-            
-            Debug.Log(" arrayPhrasesVerify[currentPage * seePhraseByPage.Count + i] =  " + arrayPhrasesVerify[currentPage * seePhraseByPage.Count + i]);
-            Debug.Log(" arrayPhrases[currentPage * seePhraseByPage.Count + i] =  " + arrayPhrases[currentPage * seePhraseByPage.Count + i]);
+        {    
             if (arrayPhrasesVerify[currentPage * seePhraseByPage.Count + i] == arrayPhrases[currentPage * seePhraseByPage.Count + i])
             {
                 count++;
