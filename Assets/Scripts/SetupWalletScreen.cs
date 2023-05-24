@@ -32,7 +32,7 @@ public class SetupWalletScreen : MonoBehaviour
 
     string[] listVerifyColor = new string[] { "#5A7DBD", "#FC4F4F", "#00AA30" }; // normal, fail, success
     string m_password = "";
-    bool m_isCheckedCondition = false;
+
     // Use this for initialization
     void Start()
     {

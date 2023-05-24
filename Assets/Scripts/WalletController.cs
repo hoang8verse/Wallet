@@ -15,6 +15,8 @@ using Nethereum.Util;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.HdWallet;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Util;
 
 
 public class WalletController : MonoBehaviour
@@ -62,6 +64,46 @@ public class WalletController : MonoBehaviour
         ResultPrivateKey.text = account.PrivateKey;
         Debug.Log(account.Address);
     }
+    public bool VerifySeedPhrase(string seedPhrase)
+    {
+        bool isValid = false;
+        try
+        {
+            // Generate a wallet from the seed phrase
+            Wallet wallet = new Wallet(seedPhrase, string.Empty);
+
+            // Check if the generated wallet address is valid
+            isValid = AddressUtil.Current.IsValidEthereumAddressHexFormat(wallet.GetAccount(0).Address);
+        }
+        catch
+        {
+            // An exception occurred, indicating an invalid seed phrase
+            isValid = false;
+        }
+
+        return isValid;
+    }
+    public bool VerifyWalletByPrivateKey(string privateKey)
+    {
+        bool isValid = false;
+        try
+        {
+
+            // Get the public address from the private key
+            string address = Nethereum.Signer.EthECKey.GetPublicAddress(privateKey);
+
+            // Check if the generated address is valid
+            isValid = AddressUtil.Current.IsValidEthereumAddressHexFormat(address);
+        }
+        catch
+        {
+            // An exception occurred, indicating an invalid private key
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
     private string CreateTwelvePhrase()
     {
         Mnemonic mnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
