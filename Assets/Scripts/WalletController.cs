@@ -15,8 +15,6 @@ using Nethereum.Util;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.HdWallet;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Util;
 
 
 public class WalletController : MonoBehaviour
