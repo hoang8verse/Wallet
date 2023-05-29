@@ -142,6 +142,8 @@ public class SetupWalletScreen : MonoBehaviour
     }
     public void GoToExploreScreen()
     {
+        WalletController.instance.wallet_password = m_password;
+        WalletController.instance.SetupWallet();
         gameObject.SetActive(false);
         exploreWalletScreen.SetActive(true);
     }

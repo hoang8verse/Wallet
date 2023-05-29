@@ -102,6 +102,7 @@ public class ImportWalletScreen : MonoBehaviour
     {
         if(tagIndex == 0)
         {
+            m_PrivateKey = "";
             m_SeedPhrases = inputFieldSeed.text;
             bool isValid = WalletController.instance.VerifySeedPhrase(m_SeedPhrases);
             if (isValid)
@@ -118,6 +119,7 @@ public class ImportWalletScreen : MonoBehaviour
         } 
         else
         {
+            m_SeedPhrases = "";
             m_PrivateKey = inputFieldSeed.text;
             bool isValid = WalletController.instance.VerifyWalletByPrivateKey(m_PrivateKey);
             if (isValid)
@@ -152,6 +154,14 @@ public class ImportWalletScreen : MonoBehaviour
     }
     public void GoToSetupScreen()
     {
+        if (m_SeedPhrases!= "")
+        {
+            WalletController.instance.wallet_phrases = m_SeedPhrases;
+        } 
+        else if (m_PrivateKey != "")
+        {
+            WalletController.instance.wallet_privateKey = m_PrivateKey;
+        }
         gameObject.SetActive(false);
         setupWalletScreen.SetActive(true);
     }

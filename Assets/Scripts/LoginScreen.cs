@@ -11,7 +11,6 @@ using TMPro;
 public class LoginScreen : MonoBehaviour
 {
     [SerializeField] private GameObject setupFlow;
-    [SerializeField] private GameObject walletFlow;
 
     [SerializeField] private GameObject nextUnlockScreen;
 
@@ -41,7 +40,7 @@ public class LoginScreen : MonoBehaviour
     public void OnFieldInputPassword()
     {
         m_Password = inputFieldPassword.text;
-        if(m_Password == "password")
+        if(m_Password == WalletController.instance.wallet_password)
         {
             m_isCorrectPassword = true;
             warningVerify.gameObject.SetActive(false);
@@ -92,7 +91,6 @@ public class LoginScreen : MonoBehaviour
             nextResetScreenConfirm.SetActive(false);
             gameObject.SetActive(false);
             setupFlow.SetActive(true);
-            walletFlow.SetActive(false);
         }
 
     }
@@ -106,6 +104,7 @@ public class LoginScreen : MonoBehaviour
         if (m_isCorrectPassword)
         {
             gameObject.SetActive(false);
+            nextUnlockScreen.SetActive(true);
         }
         
     }

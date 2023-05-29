@@ -7,22 +7,29 @@ using UnityEngine.UI;
 using UnityEngine;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Numerics;
 
 using NBitcoin;
+using Nethereum.Contracts;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using Nethereum.Util;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.HdWallet;
-
+using Nethereum.Signer;
+using Nethereum.RPC.Eth.DTOs;
+using Nethereum.JsonRpc.Client;
+using System.Net.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 public class WalletController : MonoBehaviour
 {
     public static WalletController instance;
-    private string currentChain = "ethereum"; // bitcoin
-    private bool isMainNet = false;
+    public string currentNetwork = "bsc testnet";
 
+    Wallet wallet;
     Web3 web3;
     Mnemonic mnemo;
     public string wallet_name = "";
@@ -31,13 +38,9 @@ public class WalletController : MonoBehaviour
     public string wallet_password = "";
     public string wallet_privateKey = "";
 
-    public const string Words =
-       "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
-   
+    //public const string Words =
+    //   "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
 
-    public InputField ResultAccountAddress;
-    public InputField InputWords;
-    public InputField ResultPrivateKey;
 
     // Use this for initialization
     void Start()
@@ -49,19 +52,6 @@ public class WalletController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void GetHdWalletAccoutnsRequest()
-    {
-       GetHdWalletAccounts();
-    }
-
-    public void GetHdWalletAccounts()
-    {
-        var wallet = new Wallet(Words, null);
-        var account = wallet.GetAccount(0);
-        ResultAccountAddress.text = account.Address;
-        ResultPrivateKey.text = account.PrivateKey;
-        Debug.Log(account.Address);
-    }
     public bool VerifySeedPhrase(string seedPhrase)
     {
         bool isValid = false;
@@ -101,6 +91,54 @@ public class WalletController : MonoBehaviour
 
         return isValid;
     }
+    public void SetupWallet()
+    {
+        if(wallet_phrases != "")
+        {
+            wallet = new Wallet(wallet_phrases, string.Empty);
+            // Get the wallet address
+            wallet_address = wallet
+                .GetAccount(0) // Assuming you want the first account's address
+                .Address;
+
+            wallet_privateKey = wallet.GetAccount(0).PrivateKey;
+        }
+        else if (wallet_privateKey != "")
+        {
+            wallet_address = EthECKey.GetPublicAddress(wallet_privateKey);
+        }
+
+
+        Debug.Log("wallet_address: " + wallet_address);
+        Debug.Log("wallet_privateKey: " + wallet_privateKey);
+
+        JObject jsData = new JObject();
+        jsData.Add("wallet_name", wallet_name);
+        jsData.Add("wallet_phrases", wallet_phrases);
+        jsData.Add("wallet_address", wallet_address);
+        jsData.Add("wallet_privateKey", wallet_privateKey);
+        jsData.Add("wallet_password", wallet_password);
+
+        ProfileManager.Instance.SaveProfile(Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
+    }
+    public string GetWalletAddressBySeedPhrase(string seedPhrase)
+    {
+        wallet = new Wallet(seedPhrase, string.Empty);
+        // Get the wallet address
+        string address = wallet
+            .GetAccount(0) // Assuming you want the first account's address
+            .Address;
+        Debug.Log("Wallet Address: " + address);
+        return address;
+    }
+    public string GetWalletAddressByPrivate(string privateKey)
+    {
+        string address = EthECKey.GetPublicAddress(privateKey);
+
+        // Print the wallet address
+        Debug.Log("Wallet Address: " + address);
+        return address;
+    }
 
     private string CreateTwelvePhrase()
     {
@@ -119,10 +157,144 @@ public class WalletController : MonoBehaviour
         var account = new Account(privateKey);
         web3 = new Web3(account);
     }
-    private async Task GetBalance()
+    private async Task GetBalanceEth()
     {
         var balance = await web3.Eth.GetBalance.SendRequestAsync(wallet_address);
     }
+    private async Task<string> GetTokenABI(string abiApiUrl)
+    {
+        // Try to load the ABI from a local file first
+        //if (!string.IsNullOrEmpty(abiFilePath) && File.Exists(abiFilePath))
+        //{
+        //    return await File.ReadAllTextAsync(abiFilePath);
+        //}
+
+        // If the local file is not found, make an API request to retrieve the ABI
+        if (!string.IsNullOrEmpty(abiApiUrl))
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(abiApiUrl);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+
+                    // Adjust the parsing logic based on the API response format
+                    dynamic apiResponse = JsonConvert.DeserializeObject(responseBody);
+                    string tokenAbi = apiResponse.abi;
+
+                    return tokenAbi;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Debug.LogError("Failed to retrieve ABI from API: " + ex.Message);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    string GetApiUrlContractABI(string network, string contractAddress)
+    {
+        string _url = "";
+        switch (network)
+        {
+            case "bsc testnet":
+                _url = $"https://api-testnet.bscscan.com/api?module=contract&action=getabi&address={contractAddress}";
+                break;
+            case "bsc":
+                _url = $"https://api.bscscan.com/api?module=contract&action=getabi&address={contractAddress}";
+                break;
+            case "polygon testnet":
+                _url = $"https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address={contractAddress}";
+                break;
+            case "polygon":
+                _url = $"https://api.polygonscan.com/api?module=contract&action=getabi&address={contractAddress}";
+                break;
+            case "avalanche testnet":
+                // Replace [Network Name] with the name of the Avalanche Testnet network (e.g., fuji)
+                string networkName = "fuji";
+                _url = $"https://{networkName}-api.avax-test.network/v2/contract/{contractAddress}/abi";
+                break;
+            case "avalanche":
+                _url = $"https://explorerapi.avax.network/v2/contract/{contractAddress}/abi";
+                break;
+            default:
+                // default bsc testnet
+                _url = $"https://api-testnet.bscscan.com/api?module=contract&action=getabi&address={contractAddress}";
+                break;
+        }
+        return _url;
+    }
+    string GetRpcUrl(string network)
+    {
+        string _url = "";
+        switch (network)
+        {
+            case "bsc testnet":
+                _url = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+                break;
+            case "bsc":
+                _url = "https://bsc-dataseed.binance.org/";
+                break;
+            case "polygon testnet":
+                _url = "https://rpc-mumbai.maticvigil.com/";
+                break;
+            case "polygon":
+                _url = "https://polygon-rpc.com/";
+                break;
+            case "avalanche testnet":
+                _url = "https://api.avax-test.network/ext/bc/C/rpc";
+                break;
+            case "avalanche":
+                _url = "https://api.avax.network/ext/bc/C/rpc";
+                break;
+            default:
+                // default bsc testnet
+                _url = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+                break;
+        }
+        return _url;
+    }
+
+    private async Task<string> GetTokenBalance(Web3 web3, string address, string contractAddress)
+    {
+        // Load the token contract using the specific ABI
+        var contractABI = @"[Replace with the actual ABI of the ERC20 token contract]";
+        string abiApiUrl = GetApiUrlContractABI("bsc testnet", contractAddress);
+        contractABI = await GetTokenABI(abiApiUrl);
+
+        var contract = web3.Eth.GetContract(contractABI, contractAddress);
+
+        // Retrieve the balance of the token for the given address
+        Function balanceOfFunction = contract.GetFunction("balanceOf");
+        CallInput balanceOfCallInput = balanceOfFunction.CreateCallInput(address);
+        BigInteger balance = await balanceOfFunction.CallAsync<BigInteger>(balanceOfCallInput);
+
+        // Convert the balance to decimal format
+        decimal balanceDecimal = Web3.Convert.FromWei(balance);
+
+        return balanceDecimal.ToString();
+    }
+
+    private async Task<string> TokenBalance(string rpcUrl, string walletAddress, string tokenContractAddress)
+    {
+        // Set up the RPC client
+        //string rpcUrl = "https://bsc-dataseed.binance.org/"; // RPC endpoint for Binance Smart Chain
+        var client = new RpcClient(new Uri(rpcUrl));
+        var web3 = new Web3(client);
+
+        //Task<string> bnbBalanceTask = GetTokenBalance(web3, walletAddress, bnbContractAddress);
+        // Get the token balance
+        Task<string> balanceTask = GetTokenBalance(web3, walletAddress, tokenContractAddress);
+        string balance = await balanceTask;
+
+        Debug.Log("Token Balance: " + balance);
+        return balance;
+    }
+
     private async void SendTransaction(string toAddress, decimal value)
     {
         value = 2.11m;

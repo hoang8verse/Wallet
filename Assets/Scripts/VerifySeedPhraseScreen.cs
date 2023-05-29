@@ -11,7 +11,7 @@ using TMPro;
 public class VerifySeedPhraseScreen : MonoBehaviour
 {
     [SerializeField] private GameObject backScreen;
-    [SerializeField] private GameObject exploreWalletScreen;
+    [SerializeField] private GameObject setupWalletScreen;
     [SerializeField] private List<TMPro.TextMeshProUGUI> positionPage;
     [SerializeField] private List<TMPro.TMP_InputField> seePhraseByPage;
     [SerializeField] private GameObject messageWarning;
@@ -152,7 +152,7 @@ public class VerifySeedPhraseScreen : MonoBehaviour
             else
             {
                 gameObject.SetActive(false);
-                exploreWalletScreen.SetActive(true);
+                setupWalletScreen.SetActive(true);
             }
         } 
         else
