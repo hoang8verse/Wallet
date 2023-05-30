@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-
+using System.Threading.Tasks;
 
 public class LoginScreen : MonoBehaviour
 {
@@ -105,7 +105,18 @@ public class LoginScreen : MonoBehaviour
         {
             gameObject.SetActive(false);
             nextUnlockScreen.SetActive(true);
+            WalletController.instance.SetupMainToken();
         }
         
+    }
+    public async void TokenBalance()
+    {
+        Task<string> balanceTask = WalletController.instance.TokenBalance(
+            WalletController.instance.wallet_address,
+            "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"
+            );
+        string balance = await balanceTask;
+
+        Debug.Log("Token Balance: " + balance);
     }
 }

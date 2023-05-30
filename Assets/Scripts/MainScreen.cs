@@ -68,10 +68,15 @@ public class MainScreen : MonoBehaviour
 
 
         walletName.text = WalletController.instance.wallet_name;
-        walletAddress.text = WalletController.instance.wallet_address;
+        walletAddress.text = WalletFormat(WalletController.instance.wallet_address);
 
+    }
 
-
+    string WalletFormat(string wallet)
+    {
+        string _wallet = "";
+        _wallet = wallet.Substring(0,6) + "..." + wallet.Substring(wallet.Length - 4,4);
+        return _wallet;
     }
 
     public void OnSelectTag(int index)

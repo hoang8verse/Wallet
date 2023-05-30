@@ -37,6 +37,7 @@ public class WalletController : MonoBehaviour
     public string wallet_phrases = "";
     public string wallet_password = "";
     public string wallet_privateKey = "";
+    public List<JObject> listTokens;
 
     //public const string Words =
     //   "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
@@ -50,6 +51,7 @@ public class WalletController : MonoBehaviour
         else if (instance != this)
             Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
+        listTokens = new List<JObject>();
     }
 
     public bool VerifySeedPhrase(string seedPhrase)
@@ -182,8 +184,10 @@ public class WalletController : MonoBehaviour
 
                     // Adjust the parsing logic based on the API response format
                     dynamic apiResponse = JsonConvert.DeserializeObject(responseBody);
-                    string tokenAbi = apiResponse.abi;
 
+                    string tokenAbi = apiResponse["result"];
+
+                    Debug.Log("apiResponse apiResponse: " + apiResponse);
                     return tokenAbi;
                 }
                 catch (HttpRequestException ex)
@@ -263,26 +267,45 @@ public class WalletController : MonoBehaviour
     {
         // Load the token contract using the specific ABI
         var contractABI = @"[Replace with the actual ABI of the ERC20 token contract]";
-        string abiApiUrl = GetApiUrlContractABI("bsc testnet", contractAddress);
+        string abiApiUrl = GetApiUrlContractABI(currentNetwork, contractAddress);
+        Debug.Log("GetTokenBalance abiApiUrl: " + abiApiUrl);
         contractABI = await GetTokenABI(abiApiUrl);
 
-        var contract = web3.Eth.GetContract(contractABI, contractAddress);
-
+        var tokenContract = web3.Eth.GetContract(contractABI, contractAddress);
         // Retrieve the balance of the token for the given address
-        Function balanceOfFunction = contract.GetFunction("balanceOf");
-        CallInput balanceOfCallInput = balanceOfFunction.CreateCallInput(address);
-        BigInteger balance = await balanceOfFunction.CallAsync<BigInteger>(balanceOfCallInput);
-
+        Function balanceOfFunction = tokenContract.GetFunction("balanceOf");
+        // Call the balanceOf function to get the token balance
+        var balance = await balanceOfFunction.CallAsync<BigInteger>(address);
         // Convert the balance to decimal format
         decimal balanceDecimal = Web3.Convert.FromWei(balance);
+
+
+        // Functions to retrieve token information
+        var symbolFunction = tokenContract.GetFunction("symbol");
+        var nameFunction = tokenContract.GetFunction("name");
+        var decimalsFunction = tokenContract.GetFunction("decimals");
+        var totalSupplyFunction = tokenContract.GetFunction("totalSupply");
+
+        // Call the functions to get token information
+        var symbol = await symbolFunction.CallAsync<string>();
+        var name = await nameFunction.CallAsync<string>();
+        var decimals = await decimalsFunction.CallAsync<uint>();
+        var totalSupply = await totalSupplyFunction.CallAsync<BigInteger>();
+
+        // Display the token information
+        Debug.Log($"Symbol: {symbol}");
+        Debug.Log($"Name: {name}");
+        Debug.Log($"Decimals: {decimals}");
+        Debug.Log($"Total Supply: {totalSupply}");
 
         return balanceDecimal.ToString();
     }
 
-    private async Task<string> TokenBalance(string rpcUrl, string walletAddress, string tokenContractAddress)
+    public async Task<string> TokenBalance(string walletAddress, string tokenContractAddress)
     {
         // Set up the RPC client
         //string rpcUrl = "https://bsc-dataseed.binance.org/"; // RPC endpoint for Binance Smart Chain
+        string rpcUrl = GetRpcUrl(currentNetwork);
         var client = new RpcClient(new Uri(rpcUrl));
         var web3 = new Web3(client);
 
@@ -293,6 +316,24 @@ public class WalletController : MonoBehaviour
 
         Debug.Log("Token Balance: " + balance);
         return balance;
+    }
+
+    public async void SetupMainToken()
+    {
+        Task<string> balanceTask = TokenBalance(
+            wallet_address,
+            "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"
+            );
+        string balance = await balanceTask;
+        
+        JObject mainToken = new JObject();
+        mainToken.Add("name", "Binance Smart Chain Test");
+        mainToken.Add("symbol", "BNB");
+        mainToken.Add("decimals", 18);
+        mainToken.Add("balance", balance);
+
+        listTokens.Add(mainToken);
+        Debug.Log("listTokens === " + listTokens[0].ToString());
     }
 
     private async void SendTransaction(string toAddress, decimal value)
