@@ -37,7 +37,7 @@ public class WalletController : MonoBehaviour
     public string wallet_phrases = "";
     public string wallet_password = "";
     public string wallet_privateKey = "";
-    public List<JObject> listTokens;
+    public JArray listTokens;
 
     //public const string Words =
     //   "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
@@ -51,7 +51,7 @@ public class WalletController : MonoBehaviour
         else if (instance != this)
             Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
-        listTokens = new List<JObject>();
+        listTokens = new JArray();
     }
 
     public bool VerifySeedPhrase(string seedPhrase)
@@ -120,6 +120,8 @@ public class WalletController : MonoBehaviour
         jsData.Add("wallet_address", wallet_address);
         jsData.Add("wallet_privateKey", wallet_privateKey);
         jsData.Add("wallet_password", wallet_password);
+        jsData.Add("token_list", "");
+        jsData.Add("nft_list", "");
 
         ProfileManager.Instance.SaveProfile(Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
     }
@@ -263,7 +265,7 @@ public class WalletController : MonoBehaviour
         return _url;
     }
 
-    private async Task<string> GetTokenBalance(Web3 web3, string address, string contractAddress)
+    private async Task<JObject> GetTokenInformation(Web3 web3, string address, string contractAddress)
     {
         // Load the token contract using the specific ABI
         var contractABI = @"[Replace with the actual ABI of the ERC20 token contract]";
@@ -298,10 +300,15 @@ public class WalletController : MonoBehaviour
         Debug.Log($"Decimals: {decimals}");
         Debug.Log($"Total Supply: {totalSupply}");
 
-        return balanceDecimal.ToString();
+        JObject jToken = new JObject();
+        jToken.Add("name", name);
+        jToken.Add("symbol", symbol);
+        jToken.Add("decimals", decimals);
+        jToken.Add("balance", balanceDecimal.ToString());
+        return jToken;
     }
 
-    public async Task<string> TokenBalance(string walletAddress, string tokenContractAddress)
+    public async Task<JObject> TokenInformation(string walletAddress, string tokenContractAddress)
     {
         // Set up the RPC client
         //string rpcUrl = "https://bsc-dataseed.binance.org/"; // RPC endpoint for Binance Smart Chain
@@ -311,29 +318,24 @@ public class WalletController : MonoBehaviour
 
         //Task<string> bnbBalanceTask = GetTokenBalance(web3, walletAddress, bnbContractAddress);
         // Get the token balance
-        Task<string> balanceTask = GetTokenBalance(web3, walletAddress, tokenContractAddress);
-        string balance = await balanceTask;
+        Task<JObject> tokenTask = GetTokenInformation(web3, walletAddress, tokenContractAddress);
+        JObject token = await tokenTask;
 
-        Debug.Log("Token Balance: " + balance);
-        return balance;
+        Debug.Log("Token : " + token);
+        return token;
     }
 
     public async void SetupMainToken()
     {
-        Task<string> balanceTask = TokenBalance(
+        Task<JObject> tokenTask = TokenInformation(
             wallet_address,
             "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"
             );
-        string balance = await balanceTask;
-        
-        JObject mainToken = new JObject();
-        mainToken.Add("name", "Binance Smart Chain Test");
-        mainToken.Add("symbol", "BNB");
-        mainToken.Add("decimals", 18);
-        mainToken.Add("balance", balance);
+        JObject token = await tokenTask;
 
-        listTokens.Add(mainToken);
-        Debug.Log("listTokens === " + listTokens[0].ToString());
+        listTokens.Add(token);
+        //Debug.Log("listTokens === " + listTokens[0].ToString());
+        ProfileManager.Instance.SaveTokenList(listTokens.ToString());
     }
 
     private async void SendTransaction(string toAddress, decimal value)

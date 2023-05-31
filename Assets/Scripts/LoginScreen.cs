@@ -109,14 +109,5 @@ public class LoginScreen : MonoBehaviour
         }
         
     }
-    public async void TokenBalance()
-    {
-        Task<string> balanceTask = WalletController.instance.TokenBalance(
-            WalletController.instance.wallet_address,
-            "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"
-            );
-        string balance = await balanceTask;
 
-        Debug.Log("Token Balance: " + balance);
-    }
 }

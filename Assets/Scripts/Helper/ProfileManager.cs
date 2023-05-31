@@ -86,6 +86,18 @@ public class ProfileManager
         WalletController.instance.wallet_address = data["wallet_address"].ToString();
         WalletController.instance.wallet_privateKey = data["wallet_privateKey"].ToString();
         WalletController.instance.wallet_password = data["wallet_password"].ToString();
+        JArray listToken = JArray.Parse(data["token_list"].ToString());
+        WalletController.instance.listTokens = listToken;
+
+    }
+    public void SaveTokenList(string listToken)
+    {
+        string value = PlayerPrefs.GetString(ProfileKey);
+        JObject jsData = JObject.Parse(value);
+        jsData["token_list"] = listToken;
+
+        PlayerPrefs.SetString(ProfileKey, Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
+        PlayerPrefs.Save();
     }
 
 }
