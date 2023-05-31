@@ -6,18 +6,19 @@ using System.Text;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-
+using Newtonsoft.Json.Linq;
 
 public class MainScreen : MonoBehaviour
 {
 
     [SerializeField] private TextMeshProUGUI walletName;
     [SerializeField] private TextMeshProUGUI walletAddress;
+    [SerializeField] private TextMeshProUGUI totalPrice;
 
 
-    [SerializeField] private Button btnPaste;
+    [SerializeField] private GameObject tokenPrefab;
+    [SerializeField] ScrollRect tokenList;
 
-    [SerializeField] private GameObject btnContinue;
     [SerializeField] private List<Sprite> buttonImages;
 
     string[] listTagColor = new string[] { "#FFFFFF", "#2954A3" }; 
@@ -69,7 +70,23 @@ public class MainScreen : MonoBehaviour
 
         walletName.text = WalletController.instance.wallet_name;
         walletAddress.text = WalletFormat(WalletController.instance.wallet_address);
+        totalPrice.text = "$ 0.0";
+        JArray listTokens = WalletController.instance.listTokens;
+        for (int i = 0; i < listTokens.Count; i++)
+        {
+            Vector3 pos = new Vector3(0, 100 - i * 200, 0);
+            GameObject instance = Instantiate(tokenPrefab, tokenList.content);
+            instance.GetComponent<TokenInfo>().SetupToken(
+                listTokens[i]["name"].ToString(),
+                listTokens[i]["balance"].ToString(),
+                listTokens[i]["symbol"].ToString(),
+                0,
+                0,
+                0
+                );
+            instance.name = listTokens[i]["symbol"].ToString();
 
+        }
     }
 
     string WalletFormat(string wallet)

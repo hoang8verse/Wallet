@@ -109,8 +109,7 @@ public class WalletController : MonoBehaviour
         {
             wallet_address = EthECKey.GetPublicAddress(wallet_privateKey);
         }
-
-
+                
         Debug.Log("wallet_address: " + wallet_address);
         Debug.Log("wallet_privateKey: " + wallet_privateKey);
 
@@ -124,6 +123,8 @@ public class WalletController : MonoBehaviour
         jsData.Add("nft_list", "");
 
         ProfileManager.Instance.SaveProfile(Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
+
+        SetupMainToken();
     }
     public string GetWalletAddressBySeedPhrase(string seedPhrase)
     {

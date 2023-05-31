@@ -99,6 +99,28 @@ public class ProfileManager
         PlayerPrefs.SetString(ProfileKey, Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
         PlayerPrefs.Save();
     }
+    public void SaveNftList(string listToken)
+    {
+        string value = PlayerPrefs.GetString(ProfileKey);
+        JObject jsData = JObject.Parse(value);
+        jsData["nft_list"] = listToken;
+
+        PlayerPrefs.SetString(ProfileKey, Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
+        PlayerPrefs.Save();
+    }
+
+    public void ResetWallet()
+    {
+        WalletController.instance.wallet_name = "";
+        WalletController.instance.wallet_phrases = "";
+        WalletController.instance.wallet_address = "";
+        WalletController.instance.wallet_privateKey = "";
+        WalletController.instance.wallet_password = "";
+        WalletController.instance.listTokens = null;
+
+        PlayerPrefs.SetString(ProfileKey, "");
+        PlayerPrefs.Save();
+    }
 
 }
 

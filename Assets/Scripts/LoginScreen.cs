@@ -91,6 +91,8 @@ public class LoginScreen : MonoBehaviour
             nextResetScreenConfirm.SetActive(false);
             gameObject.SetActive(false);
             setupFlow.SetActive(true);
+
+            ProfileManager.Instance.ResetWallet();
         }
 
     }
@@ -105,7 +107,7 @@ public class LoginScreen : MonoBehaviour
         {
             gameObject.SetActive(false);
             nextUnlockScreen.SetActive(true);
-            WalletController.instance.SetupMainToken();
+            //WalletController.instance.SetupMainToken();
         }
         
     }
