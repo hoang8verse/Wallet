@@ -39,6 +39,7 @@ public class WalletController : MonoBehaviour
     public string wallet_password = "";
     public string wallet_privateKey = "";
     public JArray listTokens;
+    public JArray listNFTs;
 
     //public const string Words =
     //   "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
@@ -53,7 +54,8 @@ public class WalletController : MonoBehaviour
             Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
         listTokens = new JArray();
-
+        listNFTs = new JArray();
+        //CheckNFTToken();
     }
 
     public bool VerifySeedPhrase(string seedPhrase)
@@ -345,6 +347,65 @@ public class WalletController : MonoBehaviour
         return jToken;
 
     }
+    public async Task<JObject> NFTInformation(string walletAddress, string nftContractAddress)
+    {
+        // Set up the RPC client
+        string rpcUrl = GetRpcUrl(currentNetwork);
+        var client = new RpcClient(new Uri(rpcUrl));
+        var web3 = new Web3(client);
+
+        // Load the token contract using the specific ABI
+        string abiApiUrl = GetApiUrlContractABI(currentNetwork, nftContractAddress);
+        Debug.Log("GetTokenBalance abiApiUrl: " + abiApiUrl);
+        JObject jTokenAbi = await GetTokenABI(abiApiUrl);
+        string contractABI = jTokenAbi["result"].ToString();
+
+        var tokenContract = web3.Eth.GetContract(contractABI, nftContractAddress);
+        // Functions to retrieve token information
+        Function balanceOfFunction = tokenContract.GetFunction("balanceOf");
+        Function symbolFunction = tokenContract.GetFunction("symbol");
+        Function nameFunction = tokenContract.GetFunction("name");
+        Function tokenURIFunction = tokenContract.GetFunction("tokenURI");
+        Function tokenIdFunction = tokenContract.GetFunction("tokenByIndex");
+        Function totalSupplyFunction = tokenContract.GetFunction("totalSupply");
+
+
+        // Call the functions to get token information
+        var balance = await balanceOfFunction.CallAsync<BigInteger>(walletAddress);
+        string tokenIDs = "";
+        for (BigInteger i = 0; i < balance; i++)
+        {
+            var tokenIDFunction = tokenContract.GetFunction("tokenOfOwnerByIndex");
+            BigInteger tokenID = await tokenIDFunction.CallAsync<BigInteger>(walletAddress, i);
+            //Debug.Log($"tokenIdd i : { i } : {tokenID}");
+            tokenIDs += tokenID.ToString() + ((i < balance - 1) ? "," : "");
+        }
+        //var tokenIDFunction = tokenContract.GetFunction("tokenOfOwnerByIndex");
+        //BigInteger tokenID = await tokenIDFunction.CallAsync<BigInteger>(walletAddress, 0);
+
+        var symbol = await symbolFunction.CallAsync<string>();
+        var name = await nameFunction.CallAsync<string>();
+        //var tokenIds = await tokenIdFunction.CallAsync<uint256>();
+        //var metadataTokenURI = await tokenURIFunction.CallAsync<string>(tokenID);
+        var totalSupply = await totalSupplyFunction.CallAsync<BigInteger>();
+
+        // Display the token information
+        Debug.Log($"Symbol: {symbol}");
+        Debug.Log($"Name: {name}");
+        Debug.Log($"tokenIds: {tokenIDs}");
+        //Debug.Log($"tokenURI: {metadataTokenURI}");
+        Debug.Log($"Total Supply: {totalSupply}");
+        Debug.Log($"balance: {balance}");
+
+        JObject jToken = new JObject();
+        jToken.Add("address", nftContractAddress);
+        jToken.Add("name", name);
+        jToken.Add("symbol", symbol);
+        jToken.Add("tokenIds", tokenIDs);
+        jToken.Add("balance", balance.ToString());
+        return jToken;
+
+    }
 
     public async void AddCustomTokenByAddress(string tokenAddress)
     {
@@ -357,16 +418,32 @@ public class WalletController : MonoBehaviour
         listTokens.Add(token);
         //Debug.Log("listTokens === " + listTokens[0].ToString());
         ProfileManager.Instance.SaveTokenList(listTokens.ToString());
-        //Task<bool> tokenAbiTask = CheckValidToken("0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd");
-        //bool isValidToken = await tokenAbiTask;
+
     }
     public void AddCustomTokenByObject(JObject token)
     {
         listTokens.Add(token);
         //Debug.Log("listTokens === " + listTokens[0].ToString());
         ProfileManager.Instance.SaveTokenList(listTokens.ToString());
-        //Task<bool> tokenAbiTask = CheckValidToken("0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd");
-        //bool isValidToken = await tokenAbiTask;
+    }
+    public async void AddCustomNFTByAddress(string tokenAddress)
+    {
+        Task<JObject> tokenTask = NFTInformation(
+            wallet_address,
+            tokenAddress
+            );
+        JObject token = await tokenTask;
+
+        listNFTs.Add(token);
+        //Debug.Log("listNFTs === " + listNFTs[0].ToString());
+        ProfileManager.Instance.SaveNftList(listNFTs.ToString());
+
+    }
+    public void AddCustomNFTByObject(JObject token)
+    {
+        listNFTs.Add(token);
+        ProfileManager.Instance.SaveNftList(listNFTs.ToString());
+
     }
     public async Task<bool> CheckValidToken(string contractAddress)
     {
@@ -398,6 +475,18 @@ public class WalletController : MonoBehaviour
             }
         }
         return isExist;
+    }
+    async void CheckNFTToken()
+    {
+        string tokenAddress = "0x8E1096F8843a6AA42Da12Fe657BB482773E44C01";
+        Task<bool> tokenAbiTask = CheckValidToken(tokenAddress);
+        bool isValidToken = await tokenAbiTask;
+
+      Task<JObject> tokenTask = NFTInformation(
+            "0xd675524331cD55c5145E04Ff1E9C7D88684766b3",
+            tokenAddress
+            );
+        JObject token = await tokenTask;
     }
 
     private async void SendTransaction(string toAddress, decimal value)
