@@ -70,7 +70,7 @@ public class MainScreen : MonoBehaviour
 
         walletName.text = WalletController.instance.wallet_name;
         walletAddress.text = WalletFormat(WalletController.instance.wallet_address);
-        totalPrice.text = "$ 0.0";
+        totalPrice.text = "$ " + 0.ToString("N3");
         JArray listTokens = WalletController.instance.listTokens;
         for (int i = 0; i < listTokens.Count; i++)
         {
@@ -78,7 +78,7 @@ public class MainScreen : MonoBehaviour
             GameObject instance = Instantiate(tokenPrefab, tokenList.content);
             instance.GetComponent<TokenInfo>().SetupToken(
                 listTokens[i]["name"].ToString(),
-                listTokens[i]["balance"].ToString(),
+                (decimal)listTokens[i]["balance"],
                 listTokens[i]["symbol"].ToString(),
                 0,
                 0,

@@ -8,6 +8,9 @@ using UnityEngine;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Net.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using NBitcoin;
 using Nethereum.Contracts;
@@ -20,9 +23,7 @@ using Nethereum.HdWallet;
 using Nethereum.Signer;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.JsonRpc.Client;
-using System.Net.Http;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 
 public class WalletController : MonoBehaviour
 {
@@ -52,6 +53,7 @@ public class WalletController : MonoBehaviour
             Destroy(gameObject);
         DontDestroyOnLoad(gameObject);
         listTokens = new JArray();
+
     }
 
     public bool VerifySeedPhrase(string seedPhrase)
@@ -123,8 +125,9 @@ public class WalletController : MonoBehaviour
         jsData.Add("nft_list", "");
 
         ProfileManager.Instance.SaveProfile(Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
+                   
+        AddCustomToken(GetMainToken(currentNetwork));
 
-        SetupMainToken();
     }
     public string GetWalletAddressBySeedPhrase(string seedPhrase)
     {
@@ -166,7 +169,7 @@ public class WalletController : MonoBehaviour
     {
         var balance = await web3.Eth.GetBalance.SendRequestAsync(wallet_address);
     }
-    private async Task<string> GetTokenABI(string abiApiUrl)
+    private async Task<JObject> GetTokenABI(string abiApiUrl)
     {
         // Try to load the ABI from a local file first
         //if (!string.IsNullOrEmpty(abiFilePath) && File.Exists(abiFilePath))
@@ -191,7 +194,7 @@ public class WalletController : MonoBehaviour
                     string tokenAbi = apiResponse["result"];
 
                     Debug.Log("apiResponse apiResponse: " + apiResponse);
-                    return tokenAbi;
+                    return apiResponse;
                 }
                 catch (HttpRequestException ex)
                 {
@@ -265,31 +268,63 @@ public class WalletController : MonoBehaviour
         }
         return _url;
     }
-
-    private async Task<JObject> GetTokenInformation(Web3 web3, string address, string contractAddress)
+    string GetMainToken(string network)
     {
-        // Load the token contract using the specific ABI
-        var contractABI = @"[Replace with the actual ABI of the ERC20 token contract]";
-        string abiApiUrl = GetApiUrlContractABI(currentNetwork, contractAddress);
-        Debug.Log("GetTokenBalance abiApiUrl: " + abiApiUrl);
-        contractABI = await GetTokenABI(abiApiUrl);
+        string _mainTokenAddress = "";
+        switch (network)
+        {
+            case "bsc testnet":
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+            case "bsc":
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+            case "polygon testnet":
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+            case "polygon":
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+            case "avalanche testnet":
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+            case "avalanche":
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+            default:
+                // default bsc testnet
+                _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                break;
+        }
+        return _mainTokenAddress;
+    }
+    
+    public async Task<JObject> TokenInformation(string walletAddress, string tokenContractAddress)
+    {
+        // Set up the RPC client
+        string rpcUrl = GetRpcUrl(currentNetwork);
+        var client = new RpcClient(new Uri(rpcUrl));
+        var web3 = new Web3(client);
 
-        var tokenContract = web3.Eth.GetContract(contractABI, contractAddress);
-        // Retrieve the balance of the token for the given address
+        // Load the token contract using the specific ABI
+        string abiApiUrl = GetApiUrlContractABI(currentNetwork, tokenContractAddress);
+        Debug.Log("GetTokenBalance abiApiUrl: " + abiApiUrl);
+        JObject jTokenAbi = await GetTokenABI(abiApiUrl);
+        string contractABI = jTokenAbi["result"].ToString();
+
+        var tokenContract = web3.Eth.GetContract(contractABI, tokenContractAddress);
+        // Functions to retrieve token information
         Function balanceOfFunction = tokenContract.GetFunction("balanceOf");
-        // Call the balanceOf function to get the token balance
-        var balance = await balanceOfFunction.CallAsync<BigInteger>(address);
+        Function symbolFunction = tokenContract.GetFunction("symbol");
+        Function nameFunction = tokenContract.GetFunction("name");
+        Function decimalsFunction = tokenContract.GetFunction("decimals");
+        Function totalSupplyFunction = tokenContract.GetFunction("totalSupply");
+
+        // Call the functions to get token information
+        var balance = await balanceOfFunction.CallAsync<BigInteger>(walletAddress);
         // Convert the balance to decimal format
         decimal balanceDecimal = Web3.Convert.FromWei(balance);
 
-
-        // Functions to retrieve token information
-        var symbolFunction = tokenContract.GetFunction("symbol");
-        var nameFunction = tokenContract.GetFunction("name");
-        var decimalsFunction = tokenContract.GetFunction("decimals");
-        var totalSupplyFunction = tokenContract.GetFunction("totalSupply");
-
-        // Call the functions to get token information
         var symbol = await symbolFunction.CallAsync<string>();
         var name = await nameFunction.CallAsync<string>();
         var decimals = await decimalsFunction.CallAsync<uint>();
@@ -307,36 +342,41 @@ public class WalletController : MonoBehaviour
         jToken.Add("decimals", decimals);
         jToken.Add("balance", balanceDecimal.ToString());
         return jToken;
+
     }
 
-    public async Task<JObject> TokenInformation(string walletAddress, string tokenContractAddress)
-    {
-        // Set up the RPC client
-        //string rpcUrl = "https://bsc-dataseed.binance.org/"; // RPC endpoint for Binance Smart Chain
-        string rpcUrl = GetRpcUrl(currentNetwork);
-        var client = new RpcClient(new Uri(rpcUrl));
-        var web3 = new Web3(client);
-
-        //Task<string> bnbBalanceTask = GetTokenBalance(web3, walletAddress, bnbContractAddress);
-        // Get the token balance
-        Task<JObject> tokenTask = GetTokenInformation(web3, walletAddress, tokenContractAddress);
-        JObject token = await tokenTask;
-
-        Debug.Log("Token : " + token);
-        return token;
-    }
-
-    public async void SetupMainToken()
+    public async void AddCustomToken(string tokenAddress)
     {
         Task<JObject> tokenTask = TokenInformation(
             wallet_address,
-            "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"
+            tokenAddress
             );
         JObject token = await tokenTask;
 
         listTokens.Add(token);
         //Debug.Log("listTokens === " + listTokens[0].ToString());
         ProfileManager.Instance.SaveTokenList(listTokens.ToString());
+        //Task<bool> tokenAbiTask = CheckValidToken("0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd");
+        //bool isValidToken = await tokenAbiTask;
+    }
+    public async Task<bool> CheckValidToken(string contractAddress)
+    {
+
+        string abiApiUrl = GetApiUrlContractABI(currentNetwork, contractAddress);
+        Debug.Log("GetTokenBalance abiApiUrl: " + abiApiUrl);
+        JObject jTokenAbi = await GetTokenABI(abiApiUrl);
+        Debug.Log("jTokenAbi === " + jTokenAbi);
+
+        string status = jTokenAbi["status"].ToString();
+        if(status == "1")
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     private async void SendTransaction(string toAddress, decimal value)
