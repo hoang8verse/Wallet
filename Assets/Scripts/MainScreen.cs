@@ -15,6 +15,8 @@ public class MainScreen : MonoBehaviour
     [SerializeField] private TextMeshProUGUI walletAddress;
     [SerializeField] private TextMeshProUGUI totalPrice;
 
+    [SerializeField] private GameObject addCustomTokenObject;
+    [SerializeField] private Button btnAddCustomToken;
 
     [SerializeField] private GameObject tokenPrefab;
     [SerializeField] ScrollRect tokenList;
@@ -71,10 +73,25 @@ public class MainScreen : MonoBehaviour
         walletName.text = WalletController.instance.wallet_name;
         walletAddress.text = WalletFormat(WalletController.instance.wallet_address);
         totalPrice.text = "$ " + 0.ToString("N3");
+        LoadTokenList();
+    }
+    public void LoadTokenList()
+    {
+        Transform contentTransform = tokenList.content;
+        
+        // Iterate through all child objects
+        if(contentTransform.childCount > 0)
+        {
+            for (int i = contentTransform.childCount - 1; i >= 0; i--)
+            {
+                // Destroy each child object
+                Destroy(contentTransform.GetChild(i).gameObject);
+            }
+        }
+       
         JArray listTokens = WalletController.instance.listTokens;
         for (int i = 0; i < listTokens.Count; i++)
         {
-            Vector3 pos = new Vector3(0, 100 - i * 200, 0);
             GameObject instance = Instantiate(tokenPrefab, tokenList.content);
             instance.GetComponent<TokenInfo>().SetupToken(
                 listTokens[i]["name"].ToString(),
@@ -105,15 +122,10 @@ public class MainScreen : MonoBehaviour
         }
 
     }
-    public void OnFieldInputWallet()
-    {
-        
 
-    }
-
-    public void OnButtonCopyAddress()
+    public void OnButtonAddToken()
     {
-        walletAddress.text = GUIUtility.systemCopyBuffer;
+        addCustomTokenObject.SetActive(true);
     }
 
 

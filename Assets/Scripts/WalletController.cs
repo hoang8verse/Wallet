@@ -125,8 +125,8 @@ public class WalletController : MonoBehaviour
         jsData.Add("nft_list", "");
 
         ProfileManager.Instance.SaveProfile(Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
-                   
-        AddCustomToken(GetMainToken(currentNetwork));
+
+        AddCustomTokenByAddress(GetMainToken(currentNetwork));
 
     }
     public string GetWalletAddressBySeedPhrase(string seedPhrase)
@@ -337,6 +337,7 @@ public class WalletController : MonoBehaviour
         Debug.Log($"Total Supply: {totalSupply}");
 
         JObject jToken = new JObject();
+        jToken.Add("address", tokenContractAddress);
         jToken.Add("name", name);
         jToken.Add("symbol", symbol);
         jToken.Add("decimals", decimals);
@@ -345,7 +346,7 @@ public class WalletController : MonoBehaviour
 
     }
 
-    public async void AddCustomToken(string tokenAddress)
+    public async void AddCustomTokenByAddress(string tokenAddress)
     {
         Task<JObject> tokenTask = TokenInformation(
             wallet_address,
@@ -353,6 +354,14 @@ public class WalletController : MonoBehaviour
             );
         JObject token = await tokenTask;
 
+        listTokens.Add(token);
+        //Debug.Log("listTokens === " + listTokens[0].ToString());
+        ProfileManager.Instance.SaveTokenList(listTokens.ToString());
+        //Task<bool> tokenAbiTask = CheckValidToken("0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd");
+        //bool isValidToken = await tokenAbiTask;
+    }
+    public void AddCustomTokenByObject(JObject token)
+    {
         listTokens.Add(token);
         //Debug.Log("listTokens === " + listTokens[0].ToString());
         ProfileManager.Instance.SaveTokenList(listTokens.ToString());
@@ -377,6 +386,18 @@ public class WalletController : MonoBehaviour
             return false;
         }
 
+    }
+    public bool CheckExistTokenAdded(string contractAddress)
+    {
+        bool isExist = false;
+        for (int i = 0; i < listTokens.Count; i++)
+        {
+            if(contractAddress == listTokens[i]["address"].ToString())
+            {
+                isExist = true;
+            }
+        }
+        return isExist;
     }
 
     private async void SendTransaction(string toAddress, decimal value)
