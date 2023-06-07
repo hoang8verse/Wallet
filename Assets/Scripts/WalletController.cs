@@ -23,7 +23,9 @@ using Nethereum.HdWallet;
 using Nethereum.Signer;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.JsonRpc.Client;
-
+using Nethereum.ABI.FunctionEncoding.Attributes;
+using System.Linq;
+using Nethereum.Unity.Rpc;
 
 public class WalletController : MonoBehaviour
 {
@@ -55,7 +57,7 @@ public class WalletController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         listTokens = new JArray();
         listNFTs = new JArray();
-        //CheckNFTToken();
+        CheckNFTToken();
     }
 
     public bool VerifySeedPhrase(string seedPhrase)
@@ -368,14 +370,13 @@ public class WalletController : MonoBehaviour
         Function tokenURIFunction = tokenContract.GetFunction("tokenURI");
         Function tokenIdFunction = tokenContract.GetFunction("tokenByIndex");
         Function totalSupplyFunction = tokenContract.GetFunction("totalSupply");
-
+        Function tokenIDFunction = tokenContract.GetFunction("tokenOfOwnerByIndex");
 
         // Call the functions to get token information
         var balance = await balanceOfFunction.CallAsync<BigInteger>(walletAddress);
         string tokenIDs = "";
         for (BigInteger i = 0; i < balance; i++)
         {
-            var tokenIDFunction = tokenContract.GetFunction("tokenOfOwnerByIndex");
             BigInteger tokenID = await tokenIDFunction.CallAsync<BigInteger>(walletAddress, i);
             //Debug.Log($"tokenIdd i : { i } : {tokenID}");
             tokenIDs += tokenID.ToString() + ((i < balance - 1) ? "," : "");
@@ -478,17 +479,170 @@ public class WalletController : MonoBehaviour
     }
     async void CheckNFTToken()
     {
-        string tokenAddress = "0x8E1096F8843a6AA42Da12Fe657BB482773E44C01";
-        Task<bool> tokenAbiTask = CheckValidToken(tokenAddress);
-        bool isValidToken = await tokenAbiTask;
+        //  string tokenAddress = "0x8E1096F8843a6AA42Da12Fe657BB482773E44C01";
+        //  Task<bool> tokenAbiTask = CheckValidToken(tokenAddress);
+        //  bool isValidToken = await tokenAbiTask;
 
-      Task<JObject> tokenTask = NFTInformation(
-            "0xd675524331cD55c5145E04Ff1E9C7D88684766b3",
-            tokenAddress
-            );
-        JObject token = await tokenTask;
+        //Task<JObject> tokenTask = NFTInformation(
+        //      "0xd675524331cD55c5145E04Ff1E9C7D88684766b3",
+        //      tokenAddress
+        //      );
+        //  JObject token = await tokenTask;
+        //GetTransactionHistory();
+        SendTransactionToken();
     }
 
+    // Event definition for the ERC20 Transfer event
+    [Event("Transfer")]
+    public class TransferEventDTO : IEventDTO
+    {
+        [Parameter("address", "_from", 1, true)]
+        public string From { get; set; }
+
+        [Parameter("address", "_to", 2, true)]
+        public string To { get; set; }
+
+        [Parameter("uint256", "_value", 3, false)]
+        public BigInteger Value { get; set; }
+    }
+
+    async void GetTransactionHistory()
+    {
+        // Event signature
+         string rpcUrl = GetRpcUrl(currentNetwork);
+        var client = new RpcClient(new Uri(rpcUrl));
+        var web3 = new Web3(client);
+
+        // Token contract address
+        var tokenContractAddress = "0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47";
+
+        // Wallet address
+        var walletAddress = "0xd675524331cD55c5145E04Ff1E9C7D88684766b3";
+
+        var transferEvent = new TransferEventDTO();
+
+        var transferEventHandler = web3.Eth.GetEvent<TransferEventDTO>(tokenContractAddress);
+        var filterInput = transferEventHandler.CreateFilterInput(walletAddress);
+        var events = await transferEventHandler.GetAllChangesAsync(filterInput);
+        
+        
+        if(events.Count > 0)
+        {
+            for (int i = 0; i < events.Count; i++)
+            {
+                Debug.Log("Logs event value : " + Web3.Convert.FromWei(events[0].Event.Value)
+                    + " events[i].Event.To : " + events[i].Event.To
+                    + " events[i].Event.From : " + events[i].Event.From);
+                
+            }
+        }
+    }
+    async void SendTransactionToken()
+    {
+        // Event signature
+        string rpcUrl = GetRpcUrl(currentNetwork);
+        var client = new RpcClient(new Uri(rpcUrl));
+        var web3 = new Web3(client);
+
+        // Token contract address
+        var tokenContractAddress = "0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47";
+        // Wallet address
+        var walletAddress = "0xd675524331cD55c5145E04Ff1E9C7D88684766b3";
+
+        // Load the token contract using the specific ABI
+        string abiApiUrl = GetApiUrlContractABI(currentNetwork, tokenContractAddress);
+        Debug.Log("GetTokenBalance abiApiUrl: " + abiApiUrl);
+        JObject jTokenAbi = await GetTokenABI(abiApiUrl);
+        string contractABI = jTokenAbi["result"].ToString();
+
+        var tokenContract = web3.Eth.GetContract(contractABI, tokenContractAddress);
+        // Functions to retrieve token information
+        Function balanceOfFunction = tokenContract.GetFunction("balanceOf");
+        Function symbolFunction = tokenContract.GetFunction("symbol");
+        Function nameFunction = tokenContract.GetFunction("name");
+        Function decimalsFunction = tokenContract.GetFunction("decimals");
+        Function totalSupplyFunction = tokenContract.GetFunction("totalSupply");
+
+        Function transfer = tokenContract.GetFunction("transfer");
+        // Call the functions to get token information
+        var balance = await balanceOfFunction.CallAsync<BigInteger>(walletAddress);
+        // Convert the balance to decimal format
+        decimal balanceDecimal = Web3.Convert.FromWei(balance);
+
+        var symbol = await symbolFunction.CallAsync<string>();
+        var name = await nameFunction.CallAsync<string>();
+        var decimals = await decimalsFunction.CallAsync<uint>();
+        var totalSupply = await totalSupplyFunction.CallAsync<BigInteger>();
+
+        string senderAddress = "0xd675524331cD55c5145E04Ff1E9C7D88684766b3";
+        string senderPrivateKey = "3724e560a76da7bb5f20e04d6d4c0bbd84c4b611e4bda6f2af7afabdc00e2959";
+        string recipientAddress = wallet_address;
+        BigInteger amount = new BigInteger(1000000000000000000); // 1 token
+
+        var transferFunction = tokenContract.GetFunction("transfer");
+        
+        var transactionSignedRequest = new TransactionSignedUnityRequest(rpcUrl, senderPrivateKey);
+ 
+
+        var transferInput = transferFunction.CreateTransactionInput(senderAddress, recipientAddress, amount);
+
+        var gasEstimate = await web3.Eth.TransactionManager.EstimateGasAsync(transferInput);
+
+        Debug.Log("Gas Estimate value: " + gasEstimate.Value);
+
+        var gasPriceEth = await web3.Eth.GasPrice.SendRequestAsync();
+        Debug.Log("Gas Price: " + gasPriceEth.Value);
+
+        BigInteger estimatedFee = gasEstimate.Value * gasPriceEth.Value;
+        Debug.Log("Estimated Fee: " + estimatedFee);
+
+        //var gasLimit = new HexBigInteger(200000); // Set the desired gas limit for the transaction
+
+        var transactionInput = new TransactionInput
+        {
+            From = senderAddress,
+            To = tokenContractAddress,
+            Data = transferInput.Data,
+            Gas = new HexBigInteger(gasEstimate.Value)
+
+        };
+
+                                         
+        var gasPrice = new HexBigInteger(18000000000); // Set the desired gas price
+        var gasLimit = new HexBigInteger(200000); // Set the desired gas limit
+
+        transferInput.GasPrice = gasPrice;
+        transferInput.Gas = gasLimit;
+
+
+        // Display the token information
+        Debug.Log($"Symbol: {symbol}");
+        Debug.Log($"Name: {name}");
+        Debug.Log($"Decimals: {decimals}");
+        Debug.Log($"balanceDecimal: {balanceDecimal}");
+        Debug.Log($"Total Supply: {totalSupply}");
+
+        StartCoroutine(SignAndSendTransactionToken(transactionSignedRequest, transferInput));
+    }
+    private IEnumerator SignAndSendTransactionToken(
+        TransactionSignedUnityRequest transactionSignedRequest,
+        TransactionInput transactionInput
+        )
+    {
+        yield return transactionSignedRequest.SignAndSendTransaction(transactionInput);
+
+
+        if (transactionSignedRequest.Exception != null)
+        {
+            Debug.Log(transactionSignedRequest.Exception.Message);
+            yield break;
+        }
+        else
+        {
+            Debug.Log($"transactionSignedRequest result: {transactionSignedRequest.Result}");
+        }
+    }
+         
     private async void SendTransaction(string toAddress, decimal value)
     {
         value = 2.11m;
