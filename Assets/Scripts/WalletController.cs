@@ -415,9 +415,10 @@ public class WalletController : MonoBehaviour
             tokenAddress
             );
         JObject token = await tokenTask;
+        Debug.Log(" AddCustomTokenByAddress token === " + token);
 
         listTokens.Add(token);
-        //Debug.Log("listTokens === " + listTokens[0].ToString());
+        Debug.Log("listTokens === " + listTokens[0].ToString());
         ProfileManager.Instance.SaveTokenList(listTokens.ToString());
 
     }
@@ -609,10 +610,10 @@ public class WalletController : MonoBehaviour
 
                                          
         var gasPrice = new HexBigInteger(18000000000); // Set the desired gas price
-        var gasLimit = new HexBigInteger(200000); // Set the desired gas limit
+        //var gasLimit = new HexBigInteger(200000); // Set the desired gas limit
 
         transferInput.GasPrice = gasPrice;
-        transferInput.Gas = gasLimit;
+        //transferInput.Gas = gasLimit;
 
 
         // Display the token information
@@ -622,7 +623,7 @@ public class WalletController : MonoBehaviour
         Debug.Log($"balanceDecimal: {balanceDecimal}");
         Debug.Log($"Total Supply: {totalSupply}");
 
-        StartCoroutine(SignAndSendTransactionToken(transactionSignedRequest, transferInput));
+        //StartCoroutine(SignAndSendTransactionToken(transactionSignedRequest, transferInput));
     }
     private IEnumerator SignAndSendTransactionToken(
         TransactionSignedUnityRequest transactionSignedRequest,

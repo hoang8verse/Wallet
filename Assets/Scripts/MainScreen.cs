@@ -10,10 +10,14 @@ using Newtonsoft.Json.Linq;
 
 public class MainScreen : MonoBehaviour
 {
+    [SerializeField] private GameObject tagTokens;
+    [SerializeField] private GameObject tagNFTs;
 
     [SerializeField] private TextMeshProUGUI walletName;
     [SerializeField] private TextMeshProUGUI walletAddress;
     [SerializeField] private TextMeshProUGUI totalPrice;
+
+    [SerializeField] private TextMeshProUGUI searchHolder;
 
     [SerializeField] private GameObject addCustomTokenObject;
     [SerializeField] private Button btnAddCustomToken;
@@ -21,29 +25,16 @@ public class MainScreen : MonoBehaviour
     [SerializeField] private GameObject tokenPrefab;
     [SerializeField] ScrollRect tokenList;
 
+    [SerializeField] private GameObject NFTPrefab;
+    [SerializeField] ScrollRect NFTList;
+
     [SerializeField] private List<Sprite> buttonImages;
 
     string[] listTagColor = new string[] { "#FFFFFF", "#2954A3" }; 
 
-    string[] textTitles = new string[] {
-        "Import a wallet using Seed Phrase",
-        "Import a wallet using Private Key"
-    };
-    string[] textDescriptions = new string[] {
-        "Typing or paste 12 (sometime 24) seed phrase here to restore your wallet",
-        "Enter the private key here to restore your wallet"
-    };
-    string[] textTitleInputs = new string[] {
-        "Seed Phrase",
-        "Private Key"
-    };
-    string[] textPlaceHolders = new string[] {
-        "Enter seed phrase",
-        "Enter private key"
-    };
-    string[] textWarnings = new string[] {
-        "Invalid Seed Phrase",
-        "Invalid Private Key"
+    string[] textSearchHolder = new string[] {
+        "Search tokens",
+        "Search NFTs"
     };
     int tagIndex = 0;
     string m_SeedPhrases = "";
@@ -56,24 +47,37 @@ public class MainScreen : MonoBehaviour
 
     void SetupTag()
     {
-        //Color textColor;
-        //tagSeedPhrase.GetComponent<Image>().sprite = buttonImages[tagIndex == 0 ? 1 : 0];
-        //if (ColorUtility.TryParseHtmlString(listTagColor[tagIndex == 0 ? 0 : 1], out textColor))
-        //{
-        //    tagSeedPhrase.GetComponentInChildren<TextMeshProUGUI>().color = textColor;
-        //}
+        Color textColor;
+        tagTokens.GetComponent<Image>().sprite = buttonImages[tagIndex == 0 ? 1 : 0];
+        if (ColorUtility.TryParseHtmlString(listTagColor[tagIndex == 0 ? 0 : 1], out textColor))
+        {
+            tagTokens.GetComponentInChildren<TextMeshProUGUI>().color = textColor;
+        }
 
-        //tagPrivateKey.GetComponent<Image>().sprite = buttonImages[tagIndex == 0 ? 0 : 1];
-        //if (ColorUtility.TryParseHtmlString(listTagColor[tagIndex == 0 ? 1 : 0], out textColor))
-        //{
-        //    tagPrivateKey.GetComponentInChildren<TextMeshProUGUI>().color = textColor;
-        //}
+        tagNFTs.GetComponent<Image>().sprite = buttonImages[tagIndex == 0 ? 0 : 1];
+        if (ColorUtility.TryParseHtmlString(listTagColor[tagIndex == 0 ? 1 : 0], out textColor))
+        {
+            tagNFTs.GetComponentInChildren<TextMeshProUGUI>().color = textColor;
+        }
 
+        searchHolder.text = textSearchHolder[tagIndex];
 
         walletName.text = WalletController.instance.wallet_name;
         walletAddress.text = WalletFormat(WalletController.instance.wallet_address);
         totalPrice.text = "$ " + 0.ToString("N3");
-        LoadTokenList();
+        if(tagIndex == 0)
+        {
+            NFTList.gameObject.SetActive(false);
+            tokenList.gameObject.SetActive(true);
+            LoadTokenList();
+        }
+        else
+        {
+            NFTList.gameObject.SetActive(true);
+            tokenList.gameObject.SetActive(false);
+            LoadNFTsList();
+        }
+        
     }
     public void LoadTokenList()
     {
@@ -105,6 +109,41 @@ public class MainScreen : MonoBehaviour
 
         }
     }
+    public void LoadNFTsList()
+    {
+        Transform contentTransform = NFTList.content;
+
+        // Iterate through all child objects
+        if (contentTransform.childCount > 0)
+        {
+            for (int i = contentTransform.childCount - 1; i >= 0; i--)
+            {
+                // Destroy each child object
+                Destroy(contentTransform.GetChild(i).gameObject);
+            }
+        }
+
+        JArray listNFTs = WalletController.instance.listNFTs;
+        if(listNFTs.Count > 0)
+        {
+            for (int i = 0; i < listNFTs.Count; i++)
+            {
+                GameObject instance = Instantiate(NFTPrefab, tokenList.content);
+                instance.GetComponent<NFTInfo>().SetupNFT(
+                    listNFTs[i]["name"].ToString(),
+                    (decimal)listNFTs[i]["balance"],
+                    listNFTs[i]["symbol"].ToString()
+                    );
+                instance.name = listNFTs[i]["symbol"].ToString();
+
+            }
+        }
+        else
+        {
+
+        }
+        
+    }
 
     string WalletFormat(string wallet)
     {
@@ -125,7 +164,15 @@ public class MainScreen : MonoBehaviour
 
     public void OnButtonAddToken()
     {
-        addCustomTokenObject.SetActive(true);
+        if (tagIndex == 0)
+        {
+            addCustomTokenObject.SetActive(true);
+        } 
+        else
+        {
+            addCustomTokenObject.SetActive(true);
+        }
+        
     }
 
 

@@ -96,7 +96,6 @@ public class ImportWalletScreen : MonoBehaviour
             tagIndex = index;
             SetupTag();
         }
-
     }
     public void OnFieldInputWallet()
     {

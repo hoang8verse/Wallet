@@ -86,8 +86,17 @@ public class ProfileManager
         WalletController.instance.wallet_address = data["wallet_address"].ToString();
         WalletController.instance.wallet_privateKey = data["wallet_privateKey"].ToString();
         WalletController.instance.wallet_password = data["wallet_password"].ToString();
-        JArray listToken = JArray.Parse(data["token_list"].ToString());
-        WalletController.instance.listTokens = listToken;
+        if(data["token_list"].ToString() != "" && data["token_list"].ToString().Length > 0)
+        {
+            JArray listToken = JArray.Parse(data["token_list"].ToString());
+            WalletController.instance.listTokens = listToken;
+        }
+        if (data["nft_list"].ToString() != "" && data["nft_list"].ToString().Length > 0)
+        {
+            JArray listNFTs = JArray.Parse(data["nft_list"].ToString());
+            WalletController.instance.listNFTs = listNFTs;
+        }
+
 
     }
     public void SaveTokenList(string listToken)
@@ -116,7 +125,8 @@ public class ProfileManager
         WalletController.instance.wallet_address = "";
         WalletController.instance.wallet_privateKey = "";
         WalletController.instance.wallet_password = "";
-        WalletController.instance.listTokens = null;
+        WalletController.instance.listTokens = new JArray();
+        WalletController.instance.listNFTs = new JArray();
 
         PlayerPrefs.SetString(ProfileKey, "");
         PlayerPrefs.Save();

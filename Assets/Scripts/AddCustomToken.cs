@@ -47,6 +47,10 @@ public class AddCustomToken : MonoBehaviour
     {
         inputNetwork.interactable = false;
         inputNetwork.text = WalletController.instance.currentNetwork;
+        inputAddress.text = "";
+        inputName.text = "";
+        inputSymbol.text = "";
+        inputDecimals.text = "";
         avaliableAddress.SetActive(true);
         invaildAddress.SetActive(false);
         CheckCanAdd(false);
@@ -122,6 +126,6 @@ public class AddCustomToken : MonoBehaviour
         WalletController.instance.AddCustomTokenByObject(m_token);
         mainScreenObject.GetComponent<MainScreen>().LoadTokenList();
         gameObject.SetActive(false);
-
+        Setup();
     }
 }
