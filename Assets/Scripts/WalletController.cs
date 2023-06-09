@@ -478,6 +478,18 @@ public class WalletController : MonoBehaviour
         }
         return isExist;
     }
+    public bool CheckExistNFTAdded(string contractAddress)
+    {
+        bool isExist = false;
+        for (int i = 0; i < listNFTs.Count; i++)
+        {
+            if (contractAddress == listNFTs[i]["address"].ToString())
+            {
+                isExist = true;
+            }
+        }
+        return isExist;
+    }
     async void CheckNFTToken()
     {
         //  string tokenAddress = "0x8E1096F8843a6AA42Da12Fe657BB482773E44C01";

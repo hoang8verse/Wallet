@@ -20,6 +20,7 @@ public class MainScreen : MonoBehaviour
     [SerializeField] private TextMeshProUGUI searchHolder;
 
     [SerializeField] private GameObject addCustomTokenObject;
+    [SerializeField] private GameObject addCustomNFTObject;
     [SerializeField] private Button btnAddCustomToken;
 
     [SerializeField] private GameObject tokenPrefab;
@@ -128,7 +129,7 @@ public class MainScreen : MonoBehaviour
         {
             for (int i = 0; i < listNFTs.Count; i++)
             {
-                GameObject instance = Instantiate(NFTPrefab, tokenList.content);
+                GameObject instance = Instantiate(NFTPrefab, NFTList.content);
                 instance.GetComponent<NFTInfo>().SetupNFT(
                     listNFTs[i]["name"].ToString(),
                     (decimal)listNFTs[i]["balance"],
@@ -167,10 +168,12 @@ public class MainScreen : MonoBehaviour
         if (tagIndex == 0)
         {
             addCustomTokenObject.SetActive(true);
+            addCustomNFTObject.SetActive(false);
         } 
         else
         {
-            addCustomTokenObject.SetActive(true);
+            addCustomNFTObject.SetActive(true);
+            addCustomTokenObject.SetActive(false);
         }
         
     }

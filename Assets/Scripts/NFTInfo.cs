@@ -13,9 +13,9 @@ public class NFTInfo : MonoBehaviour
     [SerializeField] private TextMeshProUGUI NFTName;
     [SerializeField] private TextMeshProUGUI NFTBalance;
 
-    [SerializeField] private TextMeshProUGUI NFTPrice;
-    [SerializeField] private TextMeshProUGUI NFTRaise;
-    [SerializeField] private TextMeshProUGUI balancePrice;
+    //[SerializeField] private TextMeshProUGUI NFTPrice;
+    //[SerializeField] private TextMeshProUGUI NFTRaise;
+    //[SerializeField] private TextMeshProUGUI balancePrice;
 
 
     // Use this for initialization
