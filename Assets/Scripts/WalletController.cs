@@ -129,8 +129,7 @@ public class WalletController : MonoBehaviour
         jsData.Add("nft_list", "");
 
         ProfileManager.Instance.SaveProfile(Newtonsoft.Json.JsonConvert.SerializeObject(jsData));
-
-        AddCustomTokenByAddress(GetMainToken(currentNetwork));
+        AddMainToken();
 
     }
     public string GetWalletAddressBySeedPhrase(string seedPhrase)
@@ -272,37 +271,90 @@ public class WalletController : MonoBehaviour
         }
         return _url;
     }
-    string GetMainToken(string network)
+    JObject GetMainToken(string network)
     {
         string _mainTokenAddress = "";
+        string _mainTokenName = "";
+        string _mainTokenSymbol = "";
         switch (network)
         {
             case "bsc testnet":
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
             case "bsc":
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
             case "polygon testnet":
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
             case "polygon":
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
             case "avalanche testnet":
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
             case "avalanche":
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
             default:
                 // default bsc testnet
                 _mainTokenAddress = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+                _mainTokenName = "Binance Smart Chain Test";
+                _mainTokenSymbol = "BNB";
                 break;
         }
-        return _mainTokenAddress;
+        JObject _data = new JObject();
+        _data.Add("address", _mainTokenAddress);
+        _data.Add("name", _mainTokenName);
+        _data.Add("symbol", _mainTokenSymbol);
+        return _data;
     }
-    
+    public async Task<JObject> MainTokenInformation(string walletAddress)
+    {
+        // Set up the RPC client
+        string rpcUrl = GetRpcUrl(currentNetwork);
+        var client = new RpcClient(new Uri(rpcUrl));
+        var web3 = new Web3(client);
+        decimal mainBalance = 0;
+        try
+        {
+            
+            // Fetch main balance
+            var balance = await web3.Eth.GetBalance.SendRequestAsync(walletAddress);
+            // Convert the balance to a readable format
+            mainBalance = UnitConversion.Convert.FromWei(balance.Value);
+
+            Debug.Log($"BNB balance: {mainBalance}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Failed to retrieve GetBalance : " + ex.Message);
+
+        }
+
+
+        JObject jTokenMain = GetMainToken(currentNetwork);
+        JObject jToken = new JObject();
+        jToken.Add("address", jTokenMain["address"]);
+        jToken.Add("name", jTokenMain["name"]);
+        jToken.Add("symbol", jTokenMain["symbol"]);
+        jToken.Add("decimals", "");
+        jToken.Add("balance", mainBalance.ToString());
+        return jToken;
+
+    }
     public async Task<JObject> TokenInformation(string walletAddress, string tokenContractAddress)
     {
         // Set up the RPC client
@@ -408,6 +460,17 @@ public class WalletController : MonoBehaviour
 
     }
 
+    public async void AddMainToken()
+    {
+        Task<JObject> tokenTask = MainTokenInformation(wallet_address);
+        JObject token = await tokenTask;
+        Debug.Log(" AddMainToken token === " + token);
+
+        listTokens.Add(token);
+        Debug.Log("listTokens === " + listTokens[0].ToString());
+        ProfileManager.Instance.SaveTokenList(listTokens.ToString());
+
+    }
     public async void AddCustomTokenByAddress(string tokenAddress)
     {
         Task<JObject> tokenTask = TokenInformation(
@@ -492,17 +555,22 @@ public class WalletController : MonoBehaviour
     }
     async void CheckNFTToken()
     {
-        //  string tokenAddress = "0x8E1096F8843a6AA42Da12Fe657BB482773E44C01";
-        //  Task<bool> tokenAbiTask = CheckValidToken(tokenAddress);
-        //  bool isValidToken = await tokenAbiTask;
+        //string tokenAddress = "0xB8c77482e45F1F44dE1745F52C74426C631bDD52";
+        //Task<bool> tokenAbiTask = CheckValidToken(tokenAddress);
+        //bool isValidToken = await tokenAbiTask;
 
-        //Task<JObject> tokenTask = NFTInformation(
+        //Task<JObject> tokenTask = TokenInformation(
         //      "0xd675524331cD55c5145E04Ff1E9C7D88684766b3",
         //      tokenAddress
         //      );
-        //  JObject token = await tokenTask;
+        //JObject token = await tokenTask;
+
+        Task<JObject> tokenTask = MainTokenInformation(
+          "0xd675524331cD55c5145E04Ff1E9C7D88684766b3"
+          );
+        JObject token = await tokenTask;
         //GetTransactionHistory();
-        SendTransactionToken();
+        //SendTransactionToken();
     }
 
     // Event definition for the ERC20 Transfer event
@@ -653,6 +721,9 @@ public class WalletController : MonoBehaviour
         else
         {
             Debug.Log($"transactionSignedRequest result: {transactionSignedRequest.Result}");
+            //// waiting transaction receipt
+            //string transactionHash = transactionSignedRequest.Result;
+            //web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
         }
     }
          
