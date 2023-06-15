@@ -569,7 +569,7 @@ public class WalletController : MonoBehaviour
           "0xd675524331cD55c5145E04Ff1E9C7D88684766b3"
           );
         JObject token = await tokenTask;
-        //GetTransactionHistory();
+        GetTransactionHistory();
         //SendTransactionToken();
     }
 
@@ -585,7 +585,10 @@ public class WalletController : MonoBehaviour
 
         [Parameter("uint256", "_value", 3, false)]
         public BigInteger Value { get; set; }
+
+
     }
+
 
     async void GetTransactionHistory()
     {
@@ -605,18 +608,71 @@ public class WalletController : MonoBehaviour
         var transferEventHandler = web3.Eth.GetEvent<TransferEventDTO>(tokenContractAddress);
         var filterInput = transferEventHandler.CreateFilterInput(walletAddress);
         var events = await transferEventHandler.GetAllChangesAsync(filterInput);
-        
-        
+
+        JArray jEvents = new JArray();
         if(events.Count > 0)
         {
             for (int i = 0; i < events.Count; i++)
             {
-                Debug.Log("Logs event value : " + Web3.Convert.FromWei(events[0].Event.Value)
-                    + " events[i].Event.To : " + events[i].Event.To
-                    + " events[i].Event.From : " + events[i].Event.From);
+                //Debug.Log("Logs GetType: " + events[i].GetType()
+                //    + " TransactionHash : " + events[i].Log.TransactionHash
+                //    );
+                string transactionHash = events[i].Log.TransactionHash;
+                var status = "";
+                try
+                {
+                    var transactionReceipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
+                    status = transactionReceipt.Succeeded() ? "Success" : "Failed";
+                    
+                }
+                catch (Exception)
+                {
+                    status = "Pending";
+                }
+
+                Debug.Log($"Status: {status}");
+
+                var transaction = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash);
+                var blockNumber = transaction.BlockNumber.Value;
+                var sender = transaction.From;
+                var receiver = transaction.To;
+                var value = transaction.Value.Value;
+                var gasPrice = transaction.GasPrice.Value;
+                var Nonce = transaction.Nonce;
+
                 
+                var block = await web3.Eth.Blocks.GetBlockWithTransactionsHashesByNumber.SendRequestAsync(new HexBigInteger(blockNumber));
+                var transactionDate = block.Timestamp.ToUlong();
+                DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds((long)transactionDate).UtcDateTime;
+
+                string formattedDate = dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+                Debug.Log($"Transaction Date: {formattedDate}");
+
+                
+                Debug.Log($"Block Number: {blockNumber}");
+                Debug.Log($"Sender: {sender}");
+                Debug.Log($"Receiver: {receiver}");
+                Debug.Log($"Value: {Web3.Convert.FromWei(value)}");
+                Debug.Log($"Gas Price: {Web3.Convert.FromWei(gasPrice)}");
+                Debug.Log($"Nonce: {Nonce}");
+
+                JObject jObjectEvent = new JObject();
+                jObjectEvent.Add("Status", status);
+                jObjectEvent.Add("Date", formattedDate);
+                jObjectEvent.Add("Sender", sender);
+                jObjectEvent.Add("Receiver", receiver);
+                jObjectEvent.Add("Value", Web3.Convert.FromWei(value));
+                jObjectEvent.Add("GasPrice", Web3.Convert.FromWei(gasPrice));
+                jObjectEvent.Add("Nonce", Nonce.ToString());
+                jObjectEvent.Add("BlockNumber", blockNumber.ToString());
+
+                jEvents.Add(jObjectEvent);
             }
         }
+
+
+       
     }
     async void SendTransactionToken()
     {
