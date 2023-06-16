@@ -29,6 +29,8 @@ public class MainScreen : MonoBehaviour
     [SerializeField] private GameObject NFTPrefab;
     [SerializeField] ScrollRect NFTList;
 
+    [SerializeField] private GameObject tokenDetail;
+
     [SerializeField] private List<Sprite> buttonImages;
 
     string[] listTagColor = new string[] { "#FFFFFF", "#2954A3" }; 
@@ -99,12 +101,15 @@ public class MainScreen : MonoBehaviour
         {
             GameObject instance = Instantiate(tokenPrefab, tokenList.content);
             instance.GetComponent<TokenInfo>().SetupToken(
+                listTokens[i]["address"].ToString(),
                 listTokens[i]["name"].ToString(),
                 (decimal)listTokens[i]["balance"],
                 listTokens[i]["symbol"].ToString(),
                 0,
                 0,
-                0
+                0,
+                this.gameObject,
+                tokenDetail
                 );
             instance.name = listTokens[i]["symbol"].ToString();
 

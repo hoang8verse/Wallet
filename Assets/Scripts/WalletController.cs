@@ -569,7 +569,12 @@ public class WalletController : MonoBehaviour
           "0xd675524331cD55c5145E04Ff1E9C7D88684766b3"
           );
         JObject token = await tokenTask;
-        GetTransactionHistory();
+        //Task<JArray> jArrayTask = GetTransactionHistory("0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47");
+
+        //Debug.Log(" jArrayTask.IsCompleted() before  " + jArrayTask.IsCompleted); 
+        //JArray jArray = await jArrayTask;
+        //Debug.Log(" jArray =======  " + jArray);
+        //Debug.Log(" jArrayTask.IsCompleted() after  " + jArrayTask.IsCompleted);
         //SendTransactionToken();
     }
 
@@ -590,15 +595,15 @@ public class WalletController : MonoBehaviour
     }
 
 
-    async void GetTransactionHistory()
+    public async Task<JArray> GetTransactionHistory(string tokenContractAddress)
     {
         // Event signature
-         string rpcUrl = GetRpcUrl(currentNetwork);
+        string rpcUrl = GetRpcUrl(currentNetwork);
         var client = new RpcClient(new Uri(rpcUrl));
         var web3 = new Web3(client);
 
         // Token contract address
-        var tokenContractAddress = "0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47";
+        //var tokenContractAddress = "0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47";
 
         // Wallet address
         var walletAddress = "0xd675524331cD55c5145E04Ff1E9C7D88684766b3";
@@ -657,6 +662,18 @@ public class WalletController : MonoBehaviour
                 Debug.Log($"Gas Price: {Web3.Convert.FromWei(gasPrice)}");
                 Debug.Log($"Nonce: {Nonce}");
 
+                if(status == "Success")
+                {
+                    if(sender == wallet_address)
+                    {
+                        status = "Sender";
+                    }
+                    else
+                    {
+                        status = "Receiver";
+                    }
+                }
+
                 JObject jObjectEvent = new JObject();
                 jObjectEvent.Add("Status", status);
                 jObjectEvent.Add("Date", formattedDate);
@@ -671,8 +688,7 @@ public class WalletController : MonoBehaviour
             }
         }
 
-
-       
+        return jEvents;
     }
     async void SendTransactionToken()
     {
